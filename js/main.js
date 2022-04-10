@@ -36,22 +36,33 @@ const $time = document.querySelector('#time');
 const $result = document.querySelector('#result');
 const $timeHeader = document.querySelector('#time-header');
 const $resultHeader = document.querySelector('#result-header');
+const $gameTime = document.querySelector('#game-time');
 
+const colors = ['#FF0000', '#FF1493', '#9370DB', '#0000FF', '#FFDEAD', '#00FF00', '#00FFFF', '#40E0D0', '#00FFFF'];
 let score = 0;
 let isGameStarted = false;
 
 
 $start.addEventListener('click', startGame);
 $bgGame.addEventListener('click', handelBoxClick);
+$gameTime.addEventListener('input', setGameTime);
+
+function show($el) {
+    $el.classList.remove('hide');
+}
+
+function hide($el) {
+    $el.classList.add('hide');
+}
 
 function startGame() {
     score = 0;
     setGameTime();
-    $timeHeader.classList.remove('hide');
-    $resultHeader.classList.add('hide');
+    $gameTime.setAttribute('disabled', true);
+    
 
     isGameStarted = true;
-    $start.classList.add('hide');
+    hide($start);
     $bgGame.style.backgroundColor = '#fff';
     const interval = setInterval(function() {
         const time = parseFloat($time.textContent);
@@ -71,19 +82,22 @@ function setGameScore() {
 }
 
 function setGameTime() {
-    let time = 5;
+    let time = +$gameTime.value;
     $time.textContent = time.toFixed(1);
+    show($timeHeader);
+    hide($resultHeader);
 }
 
 function endGame() {
     isGameStarted = false;
     setGameScore();
+    $gameTime.removeAttribute('disabled');
 
-    $start.classList.remove('hide');
+    show($start);
     $bgGame.style.backgroundColor = '#ccc';
     $bgGame.innerHTML = '';
-    $timeHeader.classList.add('hide');
-    $resultHeader.classList.remove('hide');
+    hide($timeHeader);
+    show($resultHeader);
     
 }
 
@@ -94,15 +108,17 @@ function renderBox() {
     const gameSize = $bgGame.getBoundingClientRect();
     const maxTop = gameSize.height - boxSize;
     const maxLeft = gameSize.width - boxSize;
+    const randomColorIndex = getRandom(0, colors.length);
 
     box.style.height = box.style.width = boxSize + 'px';
-    box.style.background = '#000';
+    box.style.background = colors[randomColorIndex];
     box.style.cursor = 'pointer';
     box.style.position = 'absolute';
     box.style.top = getRandom(0, maxTop) + 'px';
     box.style.left = getRandom(0, maxLeft) + 'px';
     box.setAttribute('data-box', true);
     $bgGame.append(box);
+    
 }
 
 function handelBoxClick(event) {
@@ -118,3 +134,4 @@ function handelBoxClick(event) {
 function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
+
