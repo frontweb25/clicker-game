@@ -1,31 +1,54 @@
 
 const $start = document.querySelector('#start');
 const $bgGame = document.querySelector('#game');
-
-let score = 0;
+const $time = document.querySelector('#time');
 
 $start.addEventListener('click', startGame);
-$bgGame.addEventListener('click', handelBoxClick);
+$bgGame.addEventListener('click', handelBoxClick);  
+
+let score = 0;
+let isGameStarted = false;
+
 
 function startGame() {
-    $start.classList.add('hide');
+    isGameStarted = true;
+    $start.classList.add('hide')
     $bgGame.style.backgroundColor = '#fff';
+
+    const interval = setInterval(function() {
+        const time =  parseFloat($time.textContent);
+        if(time <= 0) {
+            clearInterval(interval);
+            endGame();
+        } else {
+            $time.textContent = (time - 0.1).toFixed(1);
+        }
+    }, 100);
 
     renderBox();
 }
 
 
+function endGame() {
+    isGameStarted = false;
+}
+
 function handelBoxClick(event) {
+    if(!isGameStarted) {
+        return;
+    }
     if(event.target.dataset.box) {
-      score++;
-      renderBox();
+        score++;
+        renderBox();
+        
     }
 }
+
 
 function renderBox() {
     $bgGame.innerHTML = '';
     const box = document.createElement('div');
-    const boxSize = getRandom(20, 80);
+    const boxSize = getRandom(30, 70);
     const gameSize = $bgGame.getBoundingClientRect();
     const maxTop = gameSize.height - boxSize;
     const maxLeft = gameSize.width - boxSize;
@@ -36,10 +59,10 @@ function renderBox() {
     box.style.top = getRandom(0, maxTop) + 'px';
     box.style.left = getRandom(0, maxLeft) + 'px';
     box.style.cursor = 'pointer';
-    box.setAttribute('data-box', true);
-
-    $bgGame.insertAdjacentElement("afterbegin", box);
-    // $bgGame.append(box);
+    box.setAttribute('data-box', true); 
+    // $bgGame.insertAdjacentElement('afterbegin', box);
+    $bgGame.append(box);
+    
 }
 
 function getRandom(min, max) {
