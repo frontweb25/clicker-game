@@ -1,137 +1,109 @@
-// 1)создать переменную $start и подкючить кнопку 
-// 2)создать переменную $bgGame и подключить тело квадрата
-// 3)создать переменную $time и подключить время
-
-//4) создать функцию startGame 
-//5) при клике на $start она должна скрываться и меняться background $bgGame 
-//6) создать функцию renderBox 
-//7) внутрь renderBox создать квадрат 50px. позиционировать его.изменить цвет
-// задать top 50 left 70  квадрату. добавить квадрат на страницу 
-//8) создать функию handelBoxClick повесить слушателя addEventListener 
-//9) сделать деоегирование событий для $bgGame внуцтри функции handelBoxClick
-// dataset.box подсказка 
-//10) создать переменную score = 0 и поместить в handelBoxClick 
-//должна запускаться renderBox
-//11) $bgGame.innerHTML = '' добавить в renderBox
-//12)создать функцию getRandom(min, max) возвращает 
-//Math.floor(Math.random() * (max - min) + min)
-//13) в renderBox создать переменную boxSize и присвоить getRandom()
-//14) присвоить boxSize квадрату box
-//15) в функции renderBox создать переменную gameSize 
-// и присвоить ей $bgGame.getBoundingClientRect();
-//создать переменную maxTop = gameSize.height - boxSize
-// top и left = присвозить getRandom(0, maxTop) + px
-//16) в startGame создать переменную interval с SetInterval
-//создать переменную time и присвоитm parseFloat($time.textContent)
-//если time <=0 тогда конец игры если нет то $time.textContent = time - 0.1
-//создать функцию endGame
-//создать переменную isGameStarted cо значение false
-//в переменную startGame поместить переменную isGameStarted = true
-//в handelBoxClick сделать проверку если игра не !isGameStarted тогда return
-
 
 const $start = document.querySelector('#start');
-const $bgGame = document.querySelector('#game');
+const $gameBg = document.querySelector('#game');
 const $time = document.querySelector('#time');
-const $result = document.querySelector('#result');
 const $timeHeader = document.querySelector('#time-header');
 const $resultHeader = document.querySelector('#result-header');
+const $scoreResult = document.querySelector('#result');
 const $gameTime = document.querySelector('#game-time');
 
-const colors = ['#FF0000', '#FF1493', '#9370DB', '#0000FF', '#FFDEAD', '#00FF00', '#00FFFF', '#40E0D0', '#00FFFF'];
-let score = 0;
-let isGameStarted = false;
+let score = 0; //счетчик результата
+let isGameStarter = false; //игра не запцущена
 
-
-$start.addEventListener('click', startGame);
-$bgGame.addEventListener('click', handelBoxClick);
+$start.addEventListener('click', startGame); 
+$gameBg.addEventListener('click', handelBoxClick);
 $gameTime.addEventListener('input', setGameTime);
 
-function show($el) {
-    $el.classList.remove('hide');
-}
 
-function hide($el) {
+function hide($el) { // фуекция скрытия элемента
     $el.classList.add('hide');
 }
 
-function startGame() {
-    score = 0;
-    setGameTime();
-    $gameTime.setAttribute('disabled', true);
-    
+function show($el) { // функция показа элемента
+    $el.classList.remove('hide');
+}
 
-    isGameStarted = true;
-    hide($start);
-    $bgGame.style.backgroundColor = '#fff';
+function startGame(){  // начало игры
+    score = 0;
+    $gameTime.setAttribute('disabled', true); // блокируем инпут
+    setGameTime(); // запуск функции дефолтного значения 
+    isGameStarter = true; // игра запущена
+    hide($start); //скрытие кнопки старт
+    $gameBg.style.background = '#fff'; // изминение  цвета фона  
+
     const interval = setInterval(function() {
-        const time = parseFloat($time.textContent);
+        let time = parseFloat($time.innerHTML);
         if(time <= 0) {
-            clearInterval(interval);
-            endGame();
+            // конец игры
+           clearInterval(interval);
+           endGame();
         } else {
-            $time.textContent = (time - 0.1).toFixed(1);
+            $time.innerHTML = (time - 0.1).toFixed(1);
+            
         }
     }, 100);
 
-    renderBox();
+    renderBox(); // запуск функции создания квадрата 
 }
 
-function setGameScore() {
-    $result.textContent = score.toString();
+
+
+function setGameScore() {  // функция вывода результата
+    $scoreResult.innerHTML = score; 
 }
 
-function setGameTime() {
-    let time = +$gameTime.value;
-    $time.textContent = time.toFixed(1);
-    show($timeHeader);
-    hide($resultHeader);
+function setGameTime() { //функция дефолтного значения при запуске
+    let time = +$gameTime.value; //получаем значение из инпута
+    $time.innerHTML = time.toFixed(1); //выводим значение из инпута
+    show($timeHeader); // показываем начало время игры 
+    hide($resultHeader); // скрываем рузельтат игры
 }
 
 function endGame() {
-    isGameStarted = false;
-    setGameScore();
-    $gameTime.removeAttribute('disabled');
+    $gameTime.removeAttribute('disabled'); // включаем инпут
+    isGameStarter = false; //игра не запущена клик по квадрату не работает
+    hide($timeHeader); // скрываем начало игры
+    show($resultHeader); // выводим текст о результате 
+    setGameScore(); // выводим результат
+    $start.classList.remove('hide');
+    $gameBg.style.background = '#ccc';
+    $gameBg.innerHTML = '';
+}
 
-    show($start);
-    $bgGame.style.backgroundColor = '#ccc';
-    $bgGame.innerHTML = '';
-    hide($timeHeader);
-    show($resultHeader);
+function handelBoxClick(event) { // проверка по event на квадрат
+
+    if(isGameStarter) { // если игра запущена тогда клик работает
+        if(event.target.classList.contains('box-game')){
+            score++; // счетчик
+            renderBox(); // повторный запуск созданиея квадрата
+        }
+    }
     
 }
 
-function renderBox() {
-    $bgGame.innerHTML = '';
-    const box = document.createElement('div');
-    const boxSize = getRandom(30, 70);
-    const gameSize = $bgGame.getBoundingClientRect();
-    const maxTop = gameSize.height - boxSize;
-    const maxLeft = gameSize.width - boxSize;
-    const randomColorIndex = getRandom(0, colors.length);
 
-    box.style.height = box.style.width = boxSize + 'px';
-    box.style.background = colors[randomColorIndex];
-    box.style.cursor = 'pointer';
+function renderBox() { // генерируем квадрат
+    $gameBg.innerHTML = ''; // очищение фона 
+    const box = document.createElement('div'); // создаем див  
+    const boxSize = getRandom(30, 70);  // получаем рандомное число
+    const gameSize = $gameBg.getBoundingClientRect(); // получаем ширину и высоту поля $gameBg;
+    const maxTop = gameSize.height - boxSize; // от высоты минусуем рандомное число
+    const maxLeft = gameSize.width - boxSize; // от ширины минусуем рандомное число
+
+    box.style.height = box.style.width = boxSize + 'px'; // создаем рандомный квадрат 
     box.style.position = 'absolute';
-    box.style.top = getRandom(0, maxTop) + 'px';
-    box.style.left = getRandom(0, maxLeft) + 'px';
-    box.setAttribute('data-box', true);
-    $bgGame.append(box);
+    box.style.background = `rgb(${getRandom(0, 255)},${getRandom(0, 255)},${getRandom(0, 255)})`;
+    box.style.cursor = 'pointer';
+    box.style.top = getRandom(0, maxTop) + 'px'; // размещаем в рандомном месте
+    box.style.left = getRandom(0, maxLeft) + 'px';// размещаем в рандомном месте
+    // box.setAttribute('data-box', true);
+    box.classList.add('box-game'); //бавляем класс квадрату
+
+    $gameBg.append(box);
     
 }
 
-function handelBoxClick(event) {
-    if(!isGameStarted) {
-        return;
-    }
-    if(event.target.dataset.box) {
-        score++;
-        renderBox();
-    }
-}
-
-function getRandom(min, max) {
+//функция получения случайного числа
+function getRandom(min, max){
     return Math.floor(Math.random() * (max - min) + min);
 }
-
