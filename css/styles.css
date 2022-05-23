@@ -13,7 +13,14 @@ body {
   align-items: center;
   padding: 20px;
   overflow: hidden;
-  background: linear-gradient(#CB356B, #BD3F32);
+  background: linear-gradient(#0ed5e4, #BD3F32);
+}
+
+.app__title{
+  font-size: 50px;
+  margin-bottom: 30px;
+  color: #BD3F32;
+  font-style: italic;
 }
 
 .app {
